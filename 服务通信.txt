@@ -1,0 +1,36 @@
+通信约定
+    传递数据格式：json格式
+        '{'messageId':id,"messageData":data}'
+
+    messageId:
+        1 : 传递玩家信息(client)
+        2 : 玩家移动消息(client,server广播)
+        3 : 玩家准备消息(client,server广播) 特例：房主3号消息为开始游戏消息
+        4 : 玩家离开消息(client,server广播)
+        5 : 查询玩家列表（client）/ 玩家加入或离开时广播玩家列表（server）
+        6 : 更新的食物位置
+
+
+
+    样例:
+        {'id':1,'data':[name]} c to s/sc
+        {'id':2,'data':[pN,(1,0)]} cts stc
+        {'id':3,'data':[playerName,'已准备'/'取消准备']} c to s/s to c
+        {'id':4,'data':[playerName]} cs/sc
+        {'id':5,'data':[]} c to s
+        {'id':5,'data':[name1,name2,...]} s to c
+
+        通信过程概述：
+
+            client-1 连接上服务器，服务器把client-1的ip&port加入client列表
+            client-向服务器发送1号消息（name）
+            服务器接收后，把client-1的name加入玩家列表，循环等待下一次消息传递
+                服务器接收数据失败，在client列表和玩家列表中删除对应信息，并向剩余客户端广播失联client消息（4号消息）
+                客户端接收4号消息，对应玩家的snake数据应初始化，并在更新列表中移除，对应playerFrame的state标签文本改为离线
+            新客户端加入并传递了1号消息后，服务器向全体客户端广播玩家列表（5号消息）
+
+
+
+
+
+
